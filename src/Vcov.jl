@@ -3,6 +3,7 @@ using LinearAlgebra
 using StatsBase
 using Combinatorics
 using FixedEffects
+using CategoricalArrays
 using DataFrames
 
 ##############################################################################

@@ -1,16 +1,15 @@
+This package should be used by package developers to compute standard errors. The goal is to allow users to specify a `::CovarianceEstimator` argument in the `fit` function of your package. See `FixedEffectModels` for an example.
 
-The package define types that inherit from `CovarianceEstimator`. Each type defines the following methods: 
+
+Each type defined in this package defines the following methods: 
 ```julia
 # take the data needed to compute the standard errors
-materialize(df::AbstractDataFrame, v::CovarianceEstimator) = v
+materialize(table, v::CovarianceEstimator) = v
 # return a vector with false for observations that are missing to compute the standard error
-completecases(df::AbstractDataFrame, ::CovarianceEstimator) = trues(size(df, 1))
-# return the S_hat vector corresponding to the standard error
-S_hat(x::RegressionModel, ::CovarianceEstimator) = error("S_hat not defined for this type")
+completecases(table, ::CovarianceEstimator) = trues(size(df, 1))
+# return variance-covariance matrix
 vcov(x::RegressionModel, ::CovarianceEstimator) = error("vcov not defined for this type")
+# returns the degree of freedom for the F-statistic
 df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
 ```
-
-The type `RegressionModel` must define four methods: `modelmatrix`, `crossmodelmatrix`, `residuals`, and `dof_residuals`.
-
 

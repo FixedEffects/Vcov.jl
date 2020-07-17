@@ -3,7 +3,7 @@ using LinearAlgebra
 using StatsBase
 using Combinatorics
 using CategoricalArrays
-using DataFrames
+using Tables
 
 ##############################################################################
 ##

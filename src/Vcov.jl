@@ -26,8 +26,8 @@ StatsBase.dof_residual(x::VcovData) = x.dof_residual
 ## Any type used for standard errors must define the following methods:
 ##
 ##############################################################################
-materialize(df::AbstractDataFrame, v::CovarianceEstimator) = v
-completecases(df::AbstractDataFrame, ::CovarianceEstimator) = trues(size(df, 1))
+materialize(table, v::CovarianceEstimator) = v
+completecases(table, ::CovarianceEstimator) = trues(length(Tables.rows(table)))
 S_hat(x::RegressionModel, ::CovarianceEstimator) = error("S_hat not defined for this type")
 df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
 

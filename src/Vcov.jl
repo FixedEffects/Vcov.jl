@@ -27,7 +27,10 @@ StatsBase.dof_residual(x::VcovData) = x.dof_residual
 ##
 ##############################################################################
 materialize(table, v::CovarianceEstimator) = v
-completecases(table, ::CovarianceEstimator) = trues(length(Tables.rows(table)))
+function completecases(table, ::CovarianceEstimator)
+	Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
+	return trues(length(Tables.rows(table)))
+end
 S_hat(x::RegressionModel, ::CovarianceEstimator) = error("S_hat not defined for this type")
 df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
 

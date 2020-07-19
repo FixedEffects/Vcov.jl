@@ -7,16 +7,20 @@ cluster(args...) = ClusterCovariance(args)
 
 
 function Vcov.completecases(table, v::ClusterCovariance)
+    Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
     out = trues(length(Tables.rows(table)))
+    columns = Tables.columns(x)
     for name in v.clusters
-        out .&= .!ismissing.(Tables.getcolumn(table, name))
+        out .&= .!ismissing.(Tables.getcolumn(columns, name))
     end
     return out
 end
 
 function materialize(table, v::ClusterCovariance)
+    Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
+    columns = Tables.columns(x)
     ClusterCovariance(
-        NamedTuple{v.clusters}(ntuple(i -> group(getvector(Tables.getcolumn(table, v.clusters[i]))), length(v.clusters)))
+        NamedTuple{v.clusters}(ntuple(i -> group(getvector(Tables.getcolumn(column, v.clusters[i]))), length(v.clusters)))
         )
 end
 getvector(x::AbstractVector) = x

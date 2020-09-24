@@ -1,4 +1,4 @@
-This package should be used by package developers to compute standard errors. The goal is to allow users to specify a `::CovarianceEstimator` argument in the `fit` function of your package. See `FixedEffectModels` for an example.
+This package should be used by package developers to compute standard errors. It allows users to specify a `::CovarianceEstimator` argument in the `fit` function of your package. See `FixedEffectModels` for an example.
 
 
 Each type defined in this package defines the following methods: 
@@ -12,4 +12,6 @@ vcov(x::RegressionModel, ::CovarianceEstimator) = error("vcov not defined for th
 # returns the degree of freedom for the F-statistic
 df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
 ```
+
+For now, it includes `Vcov.simple()`, `Vcov.robust()`, and `Vcov.cluster(...)`.
 

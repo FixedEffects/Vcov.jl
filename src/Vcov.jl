@@ -11,9 +11,9 @@ using Tables
 ##
 ##############################################################################
 struct VcovData{T, N} <: RegressionModel
-    modelmatrix::Matrix{Float64}       # X
-    crossmodelmatrix::T                    # X'X in the simplest case. Can be Matrix but preferably Factorization
-    residuals::Array{Float64, N}      # vector or matrix of residuals (matrix in the case of IV, residuals of Xendo on (Z, Xexo))
+    modelmatrix::Matrix{Float64} # X
+    crossmodelmatrix::T          # X'X in the simplest case. Can be Matrix but preferably Factorization
+    residuals::Array{Float64, N} # vector or matrix of residuals (matrix in the case of IV, residuals of Xendo on (Z, Xexo))
     dof_residual::Int
 end
 StatsBase.modelmatrix(x::VcovData) = x.modelmatrix
@@ -37,8 +37,9 @@ df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_re
 
 
 include("utils.jl")
-include("vcovsimple.jl")
-include("vcovrobust.jl")
-include("vcovcluster.jl")
+include("covarianceestimators/vcovsimple.jl")
+include("covarianceestimators/vcovrobust.jl")
+include("covarianceestimators/vcovcluster.jl")
+include("ranktest.jl")
 
 end

@@ -1,8 +1,9 @@
 module Vcov
+
+using CategoricalArrays
+using Combinatorics
 using LinearAlgebra
 using StatsBase
-using Combinatorics
-using CategoricalArrays
 using Tables
 
 ##############################################################################
@@ -41,5 +42,8 @@ include("covarianceestimators/vcovsimple.jl")
 include("covarianceestimators/vcovrobust.jl")
 include("covarianceestimators/vcovcluster.jl")
 include("ranktest.jl")
+
+include("precompile.jl")
+_precompile_()
 
 end

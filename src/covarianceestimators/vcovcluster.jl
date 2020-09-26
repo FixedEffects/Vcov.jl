@@ -1,5 +1,5 @@
-struct ClusterCovariance{T} <: CovarianceEstimator
-    clusters::T
+struct ClusterCovariance <: CovarianceEstimator
+    clusters
 end
 
 cluster(x::Symbol) = ClusterCovariance((x,))
@@ -19,12 +19,11 @@ end
 function materialize(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
     columns = Tables.columns(table)
-    ClusterCovariance(
-        NamedTuple{v.clusters}(ntuple(i -> group(getvector(Tables.getcolumn(columns, v.clusters[i]))), length(v.clusters)))
-        )
+    ClusterCovariance(NamedTuple{v.clusters}(
+        ntuple(i -> group(Tables.getcolumn(columns, v.clusters[i])), length(v.clusters))
+        ))
 end
-getvector(x::AbstractVector) = x
-getvector(x) = collect(x)
+
 
 
 function df_FStat(x::RegressionModel, v::ClusterCovariance, ::Bool)

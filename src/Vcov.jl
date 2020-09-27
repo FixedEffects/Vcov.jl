@@ -27,11 +27,11 @@ StatsBase.dof_residual(x::VcovData) = x.dof_residual
 ## Any type used for standard errors must define the following methods:
 ##
 ##############################################################################
-materialize(table, v::CovarianceEstimator) = v
 function completecases(table, ::CovarianceEstimator)
 	Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
 	return trues(length(Tables.rows(table)))
 end
+materialize(table, v::CovarianceEstimator) = v
 S_hat(x::RegressionModel, ::CovarianceEstimator) = error("S_hat not defined for this type")
 df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
 

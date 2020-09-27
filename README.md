@@ -3,10 +3,10 @@ This package should be used by package developers to compute standard errors. It
 
 Each type defined in this package defines the following methods: 
 ```julia
-# take the data needed to compute the standard errors
-materialize(table, v::CovarianceEstimator) = v
-# return a vector with false for observations that are missing to compute the standard error
+# return a vector indicating non-missing observations for standard errors
 completecases(table, ::CovarianceEstimator) = trues(size(df, 1))
+# materialize a CovarianceEstimator by using the data needed to compute the standard errors
+materialize(table, v::CovarianceEstimator) = v
 # return variance-covariance matrix
 vcov(x::RegressionModel, ::CovarianceEstimator) = error("vcov not defined for this type")
 # returns the degree of freedom for the F-statistic

@@ -1,6 +1,5 @@
 module Vcov
 
-using CategoricalArrays
 using Combinatorics
 using LinearAlgebra
 using StatsBase
@@ -8,7 +7,7 @@ using Tables
 
 ##############################################################################
 ##
-## Any DataType must define the following methods:
+## Mimimum RegressionModel used in Vcov
 ##
 ##############################################################################
 struct VcovData{T, N} <: RegressionModel

@@ -1,4 +1,5 @@
-This package should be used by package developers to compute standard errors. It allows users to specify a `::CovarianceEstimator` argument in the `fit` function of your package. See `FixedEffectModels` for an example.
+This package should be used as a backend by package developers. 
+It allows developers to add a `::CovarianceEstimator` argument in the `fit` method defined by their package. See `FixedEffectModels` for an example.
 
 
 Each type defined in this package defines the following methods: 

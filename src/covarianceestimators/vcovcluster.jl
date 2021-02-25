@@ -10,37 +10,42 @@ mutable struct GroupedArray{N} <: AbstractArray{UInt32, N}
     refs::Array{UInt32, N}   # refs must be between 0 and n. 0 means missing
     n::Int                   # Number of potential values (= maximum(refs))
 end
+
+size(g::GroupedArray) = size(g.refs)
+@propagate_inbounds getindex(g::GroupedArray, i::Int) = getindex(g.refs, i)
+@propagate_inbounds getindex(g::GroupedArray, I) = getindex(g.refs, I)
+
 group(xs::GroupedArray) = xs
 
 function group(xs::AbstractArray)
-    refs = Array{UInt32}(undef, size(xs))
-    invpool = Dict{eltype(xs), UInt32}()
-    n = 0
-    has_missing = false
-    @inbounds for i in eachindex(xs)
-        x = xs[i]
-        if x === missing
-            refs[i] = 0
-            has_missing = true
-        else
-            lbl = get(invpool, x, 0)
-            if lbl !== 0
-                refs[i] = lbl
-            else
-                n += 1
-                refs[i] = n
-                invpool[x] = n
-            end
-        end
-    end
-    return GroupedArray{ndims(xs)}(refs, n)
+	refs = Array{UInt32}(undef, size(xs))
+	invpool = Dict{eltype(xs), UInt32}()
+	n = 0
+	z = UInt32(0)
+	@inbounds for i in eachindex(xs)
+		x = xs[i]
+		if x === missing
+			refs[i] = 0
+		else
+			lbl = get(invpool, x, z)
+			if !iszero(lbl)
+				refs[i] = lbl
+			else
+				n += 1
+				refs[i] = n
+				invpool[x] = n
+			end
+		end
+	end
+	return GroupedArray{ndims(xs)}(refs, n)
 end
 
 function group(args...)
     g1 = deepcopy(group(args[1]))
     for j in 2:length(args)
         gj = group(args[j])
-        length(g1.refs) == length(gj.refs) || throw(DimensionError())
+        size(g1) == size(gj) || throw(DimensionMismatch(
+            "cannot match array of size $(size(g1)) with array of size $(size(gj))"))
         combine!(g1, gj)
     end
     factorize!(g1)
@@ -55,16 +60,26 @@ function combine!(g1::GroupedArray, g2::GroupedArray)
     return g1
 end
 
-function factorize!(x::GroupedArray{N}) where {N}
-    refs = x.refs
-    uu = sort!(unique(refs))
-    has_missing = uu[1] == 0
-    ngroups = length(uu) - has_missing
-    dict = Dict{UInt32, UInt32}(zip(uu, UInt32(1-has_missing):UInt32(ngroups)))
+# An in-place version of group() that relabels the refs
+function factorize!(g::GroupedArray{N}) where {N}
+    refs = g.refs
+    invpool = Dict{UInt32, UInt32}()
+    n = 0
+	z = UInt32(0)
     @inbounds for i in eachindex(refs)
-        refs[i] = dict[refs[i]]
+        x = refs[i]
+        if !iszero(x)
+            lbl = get(invpool, x, z)
+            if !iszero(lbl)
+                refs[i] = lbl
+            else
+                n += 1
+                refs[i] = n
+                invpool[x] = n
+            end
+        end
     end
-    GroupedArray{N}(refs, ngroups)
+    return GroupedArray{N}(refs, n)
 end
 
 ##############################################################################
@@ -74,34 +89,63 @@ end
 ##############################################################################
 
 struct ClusterCovariance <: CovarianceEstimator
-    clusters
+    clusternames::Tuple{Symbol, Vararg{Symbol}} # names are not allowed to be empty
+    clusters::Union{Tuple{Vararg{GroupedArray}}, Nothing}
 end
 
-cluster(x::Symbol) = ClusterCovariance((x,))
-cluster(args...) = ClusterCovariance(args)
+"""
+    cluster(names::Symbol...)
 
+Estimate variance-covariance matrix with a cluster-robust estimator.
+
+# Arguments
+- `names::Symbol...`: column names of variables that represent the clusters.
+"""
+cluster(ns::Symbol...) = ClusterCovariance((ns...,), nothing)
+cluster(ns::NTuple{N, Symbol}, gs::NTuple{N, GroupedArray}) where N =
+    ClusterCovariance(ns, gs)
+
+"""
+    names(vce::ClusterCovariance)
+
+Return column names of variables used to form clusters for `vce`.
+"""
+names(v::ClusterCovariance) = v.clusternames
+
+length(v::ClusterCovariance) = length(names(v))
+
+show(io::IO, ::ClusterCovariance) = print(io, "Cluster-robust covariance estimator")
+
+function show(io::IO, ::MIME"text/plain", v::ClusterCovariance)
+    print(io, length(v), "-way cluster-robust covariance estimator:")
+    for n in names(v)
+        print(io, "\n  ", n)
+    end
+end
 
 function Vcov.completecases(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
     out = trues(length(Tables.rows(table)))
     columns = Tables.columns(table)
-    for name in v.clusters
+    for name in names(v)
         out .&= .!ismissing.(Tables.getcolumn(columns, name))
     end
     return out
 end
 
 function materialize(table, v::ClusterCovariance)
-    Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
-    columns = Tables.columns(table)
-    ClusterCovariance(
-        NamedTuple{v.clusters}(
-        ntuple(i -> group(Tables.getcolumn(columns, v.clusters[i])), length(v.clusters))
-        ))
+    Tables.istable(table) || throw(ArgumentError("materialize requires a table input"))
+    ns = names(v)
+    return cluster(ns, map(n->group(Tables.getcolumn(table, n)), ns))
 end
 
+"""
+    nclusters(vce::ClusterCovariance)
+
+Return the number of clusters for each dimension/way of clustering.
+"""
 function nclusters(v::ClusterCovariance)
-    map(x -> x.n, v.clusters)
+    NamedTuple{names(v)}(map(x -> x.n, v.clusters))
 end
 
 function df_FStat(x::RegressionModel, v::ClusterCovariance, ::Bool)
@@ -112,8 +156,8 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
     # Cameron, Gelbach, & Miller (2011): section 2.3
     dim = size(modelmatrix(x), 2) * size(residuals(x), 2)
     S = zeros(dim, dim)
-    for c in combinations(keys(v.clusters))
-        g = group((v.clusters[var] for var in c)...)
+    for c in combinations(1:length(v))
+        g = group((v.clusters[i] for i in c)...)
         S += (-1)^(length(c) - 1) * helper_cluster(modelmatrix(x), residuals(x), g)
     end
     # scale total vcov estimate by ((N-1)/(N-K)) * (G/(G-1))

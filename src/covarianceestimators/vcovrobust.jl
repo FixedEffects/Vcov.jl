@@ -1,6 +1,14 @@
 struct RobustCovariance <: CovarianceEstimator end
 
+"""
+    robust()
+
+Estimate variance-covariance matrix with a heteroskedasticity-robust estimator.
+"""
 robust() = RobustCovariance()
+
+show(io::IO, ::RobustCovariance) =
+    print(io, "Heteroskedasticity-robust covariance estimator")
 
 function S_hat(x::RegressionModel, ::RobustCovariance)
     m = modelmatrix(x)

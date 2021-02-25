@@ -5,6 +5,8 @@ using LinearAlgebra
 using StatsBase
 using Tables
 
+import Base: @propagate_inbounds, size, length, getindex, show
+
 ##############################################################################
 ##
 ## Mimimum RegressionModel used in Vcov

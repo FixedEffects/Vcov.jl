@@ -14,6 +14,10 @@ function ranktest!(X::Matrix{Float64},
                     vcov_method::CovarianceEstimator, 
                     df_small::Int, 
                     df_absorb::Int)
+    
+    if (size(X, 2) == 0) | (size(Z, 2) == 0)
+        return NaN
+    end
 
     # Compute theta
     Fmatrix = cholesky!(Symmetric(Z' * Z), check = false).U

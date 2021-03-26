@@ -1,12 +1,10 @@
 ##############################################################################
 ##
 ## Generalized reduced rank tests using the singularvalue decomposition
-## Kleibergen Paap, Journal of Econometrics (2006)
 ##
 ## See also the Stata command ranktest
 ## RANKTEST: Stata module to test the rank of a matrix using the Kleibergen-Paap rk statistic
 ## Authors: Frank Kleibergen, Mark E Schaffer
-##
 ## More precisely, it corresponds to the Stata command:  ranktest  (X) (Z), wald full
 
 ## For Kleibergen-Paap first-stage F-statistics

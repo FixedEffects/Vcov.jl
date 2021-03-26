@@ -45,9 +45,8 @@ function ranktest!(X::Matrix{Float64},
 
     if k==l
         # see p.102 of KP
-        # use x==0 ? 1 : sign(x) for sign(0)=+1
-        a_qq = (u_sub[1]==0 ? 1 : sign(u_sub[1]))   .* u[1:l, k:l] 
-        b_qq = (vt_sub[1]==0 ? 1 : sign(vt_sub[1])) .* vt[1:k, k]'
+        a_qq = u_sub[1] >= 0 ? u[1:l, k:l] : -u[1:l, k:l] 
+        b_qq = vt_sub[1] >= 0 ? vt[1:k, k]': -vt[1:k, k]'
     else
         # there might be something do to about the sign here as well
         a_qq = u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))

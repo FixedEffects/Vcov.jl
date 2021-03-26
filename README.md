@@ -18,3 +18,4 @@ df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_re
 
 For now, it includes `Vcov.simple()`, `Vcov.robust()`, and `Vcov.cluster(...)`.
 
+Authors: Matthieu Gomez, Valentin Haddad, Erik Loualiche

@@ -1,10 +1,12 @@
 ##############################################################################
 ##
-## The following function follows the command ranktest (called by ivreg2)
+## Generalized reduced rank tests using the singularvalue decomposition
+## Kleibergen Paap, Journal of Econometrics (2006)
+##
+## See also the Stata command ranktest
 ## RANKTEST: Stata module to test the rank of a matrix using the Kleibergen-Paap rk statistic
 ## Authors: Frank Kleibergen, Mark E Schaffer
-## IVREG2: Stata module for extended instrumental variables/2SLS and GMM estimation
-## Authors: Christopher F Baum, Mark E Schaffer, Steven Stillman
+##
 ## More precisely, it corresponds to the Stata command:  ranktest  (X) (Z), wald full
 ##############################################################################
 

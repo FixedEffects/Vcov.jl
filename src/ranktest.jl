@@ -8,6 +8,12 @@
 ## Authors: Frank Kleibergen, Mark E Schaffer
 ##
 ## More precisely, it corresponds to the Stata command:  ranktest  (X) (Z), wald full
+
+## For Kleibergen-Paap first-stage F-statistics
+## See "Generalized reduced rank tests using the singular value decomposition"
+## Journal of Econometrics, 2006, 133:1
+## Frank Kleibergen and Richard Paap
+## doi:10.1016/j.jeconom.2005.02.011
 ##############################################################################
 
 function ranktest!(X::Matrix{Float64}, 
@@ -35,10 +41,18 @@ function ranktest!(X::Matrix{Float64},
     l = size(Z, 2) 
 
     u_sub = u[k:l, k:l]
-    a_qq = u[1:l, k:l] * (u_sub \ sqrt(u_sub * u_sub'))
-        
     vt_sub = vt[k,k]
-    b_qq = sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[1:k, k]')
+
+    if k==l
+        # see p.102 of KP
+        # use x==0 ? 1 : sign(x) for sign(0)=+1
+        a_qq = (u_sub[1]==0 ? 1 : sign(u_sub[1]))   .* u[1:l, k:l] 
+        b_qq = (vt_sub[1]==0 ? 1 : sign(vt_sub[1])) .* vt[1:k, k]'
+    else
+        # there might be something do to about the sign here as well
+        a_qq = u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))
+        b_qq = sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[1:k, k]')
+    end 
 
     kronv = kron(b_qq, a_qq')
     lambda = kronv * vec(theta)

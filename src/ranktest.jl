@@ -43,7 +43,7 @@ function ranktest!(X::Matrix{Float64},
 
 
     # see p.102 of KP
-    # the operation u_sup \ sqrt(u_sup * u_sub') may fail
+    # the operation u_sup \ sqrt(u_sup * u_sub') may fail. For now, we handle the case k = l but not the more general one
     a_qq = iszero(u_sub)? u[1:l, k:l] : u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))
     b_qq = iszero(vt_sub)? vt[1:k, k]' : sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[1:k, k]')
 

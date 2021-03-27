@@ -41,15 +41,11 @@ function ranktest!(X::Matrix{Float64},
     u_sub = u[k:l, k:l]
     vt_sub = vt[k,k]
 
-    if k == l
-        # see p.102 of KP
-        a_qq = u_sub[1, 1] >= 0 ? u[1:l, k:l] : -u[1:l, k:l] 
-        b_qq = vt_sub[1, 1] >= 0 ? vt[1:k, k]' : -vt[1:k, k]'
-    else
-        # there might be something do to about the sign here as well
-        a_qq = u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))
-        b_qq = sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[1:k, k]')
-    end 
+
+    # see p.102 of KP
+    # the operation u_sup \ sqrt(u_sup * u_sub') may fail
+    a_qq = iszero(u_sub)? u[1:l, k:l] : u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))
+    b_qq = iszero(vt_sub)? vt[1:k, k]' : sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[1:k, k]')
 
     kronv = kron(b_qq, a_qq')
     lambda = kronv * vec(theta)
@@ -62,11 +58,7 @@ function ranktest!(X::Matrix{Float64},
         vcovmodel = Vcov.VcovData(Z, K, X, size(Z, 1) - dof_small - dof_fes) 
         matrix_vcov2 = Vcov.S_hat(vcovmodel, vcov_method)
         vhat = K \ (K \ matrix_vcov2)'
-        try
-            vlab = cholesky!(Hermitian(kronv * vhat * kronv'), check = false)
-        catch
-            return NaN
-        end
+        vlab = cholesky!(Hermitian(kronv * vhat * kronv'), check = false)
     end
     r_kp = lambda' * (vlab \ lambda)
     return r_kp[1]

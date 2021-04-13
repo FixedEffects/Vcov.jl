@@ -5,7 +5,7 @@
 ## Missings have a ref of 0
 ## 
 ##############################################################################
-
+using DataAPI
 
 mutable struct GroupedArray{N} <: AbstractArray{UInt32, N}
     refs::Array{UInt32, N}   # refs must be between 0 and n. 0 means missing

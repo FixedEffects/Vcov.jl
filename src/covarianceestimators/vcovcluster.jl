@@ -152,10 +152,17 @@ end
 
 function Vcov.completecases(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
-    out = trues(length(Tables.rows(table)))
+    N = length(Tables.rows(table))
+    out = trues(N)
+    aux = BitVector(undef, N)
     columns = Tables.columns(table)
     for name in names(v)
-        out .&= .!ismissing.(Tables.getcolumn(columns, name))
+        col = Tables.getcolumn(columns, name)
+        if Missing <: eltype(col)
+            # The use of aux follows DataFrames.completecases for performance reasons
+            aux .= .!ismissing.(col)
+            out .&= aux
+        end
     end
     return out
 end

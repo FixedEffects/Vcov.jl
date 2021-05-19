@@ -28,7 +28,20 @@ end
 
     N = 10
     a1 = collect(1:N)
+    a2 = convert(Vector{Union{Float64, Missing}}, a1)
+    a2[1] = missing
+    cols = (a=a1, b=a2)
+
     g1 = group(a1)
     c1 = cluster((:a,), (g1,))
     @test nclusters(c1) == (a=N,)
+    c1m = materialize(cols, cluster(:a))
+    @test c1m.clusternames == c1.clusternames
+    @test c1m.clusters[1] == g1 
+
+    @test completecases(cols, c1) == trues(N)
+    c2 = materialize(cols, cluster(:b))
+    @test completecases(cols, c2) == (1:N.!=1)
+    c3 = materialize(cols, cluster(:a, :b))
+    @test completecases(cols, c3) == (1:N.!=1)
 end

@@ -1,6 +1,6 @@
 using Test
 using Vcov: GroupedArray, group, factorize!,
-    simple, robust, cluster, names, nclusters
+    completecases, materialize, simple, robust, cluster, names, nclusters
 
 import Base: ==
 

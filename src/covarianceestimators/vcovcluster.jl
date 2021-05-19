@@ -160,6 +160,7 @@ function Vcov.completecases(table, v::ClusterCovariance)
         col = Tables.getcolumn(columns, name)
         if Missing <: eltype(col)
             # The use of aux follows DataFrames.completecases for performance reasons
+            # See https://github.com/JuliaData/DataFrames.jl/pull/2726
             aux .= .!ismissing.(col)
             out .&= aux
         end

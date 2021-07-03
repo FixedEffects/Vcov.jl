@@ -25,26 +25,26 @@ end
 
 
 function _group(xs, ::Nothing)
-    refs = Array{UInt32}(undef, size(xs))
-    invpool = Dict{eltype(xs), UInt32}()
-    n = UInt32(0)
-    z = UInt32(0)
-    @inbounds for i in eachindex(xs)
-        x = xs[i]
-        if x === missing
-            refs[i] = 0
-        else
-            lbl = get(invpool, x, z)
-            if !iszero(lbl)
-                refs[i] = lbl
-            else
-                n += 1
-                refs[i] = n
-                invpool[x] = n
-            end
-        end
-    end
-    return GroupedArray{ndims(xs)}(refs, n)
+	refs = Array{UInt32}(undef, size(xs))
+	invpool = Dict{eltype(xs), UInt32}()
+	n = UInt32(0)
+	i = UInt32(0)
+	@inbounds for x in xs
+		i += 1
+		if x === missing
+			refs[i] = 0
+		else
+			lbl = get(invpool, x, UInt32(0))
+			if !iszero(lbl)
+				refs[i] = lbl
+			else
+				n += 1
+				refs[i] = n
+				invpool[x] = n
+			end
+		end
+	end
+	return GroupedArray{ndims(xs)}(refs, n)
 end
 
 function _group(ra, rp)

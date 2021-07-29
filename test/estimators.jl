@@ -32,7 +32,7 @@ end
     a2[1] = missing
     cols = (a=a1, b=a2)
 
-    g1 = group(a1)
+    g1 = GroupedArray(a1)
     c1 = cluster((:a,), (g1,))
     @test nclusters(c1) == (a=N,)
     c1m = materialize(cols, cluster(:a))

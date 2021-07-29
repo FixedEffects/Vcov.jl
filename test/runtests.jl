@@ -1,15 +1,10 @@
 using Test
-using Vcov: GroupedArray, group, factorize!,
-    completecases, materialize, simple, robust, cluster, names, nclusters
-
-import Base: ==
+using Vcov: completecases, materialize, simple, robust, cluster, names, nclusters
+using GroupedArrays
 
 const tests = [
-    "GroupedArray",
     "estimators"
 ]
-
-==(x::GroupedArray{N}, y::GroupedArray{N}) where N = x.refs == y.refs && x.n == y.n
 
 printstyled("Running tests:\n", color=:blue, bold=true)
 

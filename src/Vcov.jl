@@ -1,6 +1,7 @@
 module Vcov
 
 using Combinatorics
+using GroupedArrays
 using LinearAlgebra
 using StatsBase
 using Tables

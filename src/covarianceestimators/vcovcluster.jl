@@ -69,7 +69,7 @@ end
 Return the number of clusters for each dimension/way of clustering.
 """
 function nclusters(v::ClusterCovariance)
-    NamedTuple{names(v)}(map(x -> x.n, v.clusters))
+    NamedTuple{names(v)}(map(x -> x.ngroups, v.clusters))
 end
 
 function df_FStat(x::RegressionModel, v::ClusterCovariance, ::Bool)
@@ -94,7 +94,7 @@ end
 
 # res is a Vector in OLS, Matrix in IV
 function helper_cluster(X::Matrix, res::Union{Vector, Matrix}, g::GroupedArray)
-    X2 = zeros(eltype(X), g.n, size(X, 2) * size(res, 2))
+    X2 = zeros(eltype(X), g.ngroups, size(X, 2) * size(res, 2))
     idx = 0
     for k in 1:size(res, 2)
         for j in 1:size(X, 2)

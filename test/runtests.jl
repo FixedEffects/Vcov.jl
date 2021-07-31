@@ -1,5 +1,6 @@
 using Test
 using Vcov: completecases, materialize, simple, robust, cluster, names, nclusters
+using GroupedArrays
 const tests = [
     "estimators"
 ]

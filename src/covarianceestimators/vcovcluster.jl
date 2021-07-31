@@ -60,7 +60,7 @@ end
 function materialize(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("materialize requires a table input"))
     ns = names(v)
-    return cluster(ns, map(n->GroupedArray{UInt32}(Tables.getcolumn(table, n)), ns))
+    return cluster(ns, map(n->GroupedArray(Tables.getcolumn(table, n)), ns))
 end
 
 """
@@ -81,7 +81,7 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
     dim = size(modelmatrix(x), 2) * size(residuals(x), 2)
     S = zeros(dim, dim)
     for c in combinations(1:length(v))
-        g = GroupedArray{UInt32}((v.clusters[i] for i in c)...)
+        g = GroupedArray((v.clusters[i] for i in c)...)
         S += (-1)^(length(c) - 1) * helper_cluster(modelmatrix(x), residuals(x), g)
     end
     # scale total vcov estimate by ((N-1)/(N-K)) * (G/(G-1))

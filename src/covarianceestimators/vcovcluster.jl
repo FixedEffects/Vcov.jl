@@ -43,13 +43,12 @@ function Vcov.completecases(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("completecases requires a table input"))
     N = length(Tables.rows(table))
     out = trues(N)
+    # See https://github.com/JuliaData/DataFrames.jl/pull/2726
     aux = BitVector(undef, N)
     columns = Tables.columns(table)
     for name in names(v)
         col = Tables.getcolumn(columns, name)
         if Missing <: eltype(col)
-            # The use of aux follows DataFrames.completecases for performance reasons
-            # See https://github.com/JuliaData/DataFrames.jl/pull/2726
             aux .= .!ismissing.(col)
             out .&= aux
         end
@@ -60,7 +59,7 @@ end
 function materialize(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("materialize requires a table input"))
     ns = names(v)
-    return cluster(ns, map(n->GroupedArray(Tables.getcolumn(table, n)), ns))
+    return cluster(ns, map(n -> GroupedArray(Tables.getcolumn(table, n)), ns))
 end
 
 """
@@ -81,7 +80,11 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
     dim = size(modelmatrix(x), 2) * size(residuals(x), 2)
     S = zeros(dim, dim)
     for c in combinations(1:length(v))
-        g = GroupedArray((v.clusters[i] for i in c)...)
+        if length(c) == 1
+            g = v.clusters[c[1]]
+        else
+            g = GroupedArray((v.clusters[i] for i in c)...)
+        end
         S += (-1)^(length(c) - 1) * helper_cluster(modelmatrix(x), residuals(x), g)
     end
     # scale total vcov estimate by ((N-1)/(N-K)) * (G/(G-1))

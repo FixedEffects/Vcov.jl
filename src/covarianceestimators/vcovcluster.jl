@@ -103,7 +103,7 @@ function helper_cluster(X::Matrix, res::Union{Vector, Matrix}, g::GroupedArray)
         for j in 1:size(X, 2)
             idx += 1
             @inbounds @simd for i in 1:size(X, 1)
-                X2[g.refs[i], idx] += X[i, j] * res[i, k]
+                X2[g.groups[i], idx] += X[i, j] * res[i, k]
             end
         end
     end

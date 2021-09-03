@@ -1,4 +1,4 @@
-[![Build status](https://github.com/matthieugomez/VCOV.jl/workflows/CI/badge.svg)](https://github.com/matthieugomez/VCOV.jl/actions)
+[![Build status](https://github.com/FixedEffects/Vcov.jl/workflows/CI/badge.svg)](https://github.com/FixedEffects/Vcov.jl/actions)
 
 This package should be used as a backend by package developers. 
 It allows developers to add a `::CovarianceEstimator` argument in the `fit` method defined by their package. See `FixedEffectModels` for an example.

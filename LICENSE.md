@@ -1,6 +1,6 @@
 The Vcov.jl package is licensed under the MIT "Expat" License:
 
-> Copyright (c) 2020: Matthieu Gomez.
+> Copyright (c) 2020: Matthieu Gomez, Valentin Haddad, Erik Loualiche
 >
 > Permission is hereby granted, free of charge, to any person obtaining
 > a copy of this software and associated documentation files (the

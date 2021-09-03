@@ -18,9 +18,6 @@ df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_re
 
 For now, it includes `Vcov.simple()`, `Vcov.robust()`, and `Vcov.cluster(...)`.
 
-## Authors
-Matthieu Gomez, Valentin Haddad, Erik Loualiche
-
 ## References
 Kleibergen, F, and Paap, R. (2006) *Generalized reduced rank tests using the singular value decomposition.* Journal of econometrics
 

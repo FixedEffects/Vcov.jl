@@ -1,10 +1,10 @@
 module Vcov
 
-using Combinatorics
-using GroupedArrays
-using LinearAlgebra
-using StatsBase
-using Tables
+using Combinatorics: combinations
+using GroupedArrays: GroupedArray
+using LinearAlgebra: cholesky!
+using StatsBase: StatsBase
+using Tables: Tables
 
 import Base: @propagate_inbounds, size, length, getindex, show
 

@@ -3,7 +3,7 @@ module Vcov
 using Combinatorics: combinations
 using GroupedArrays: GroupedArray
 using LinearAlgebra: cholesky!
-using StatsBase: StatsBase
+using StatsBase: StatsBase, dof_residual
 using Tables: Tables
 using Base: @propagate_inbounds
 

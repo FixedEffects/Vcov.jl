@@ -28,11 +28,11 @@ Return column names of variables used to form clusters for `vce`.
 """
 names(v::ClusterCovariance) = v.clusternames
 
-length(v::ClusterCovariance) = length(names(v))
+Base.length(v::ClusterCovariance) = length(names(v))
 
-show(io::IO, ::ClusterCovariance) = print(io, "Cluster-robust covariance estimator")
+Base.show(io::IO, ::ClusterCovariance) = print(io, "Cluster-robust covariance estimator")
 
-function show(io::IO, ::MIME"text/plain", v::ClusterCovariance)
+function Base.show(io::IO, ::MIME"text/plain", v::ClusterCovariance)
     print(io, length(v), "-way cluster-robust covariance estimator:")
     for n in names(v)
         print(io, "\n  ", n)

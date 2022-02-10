@@ -3,7 +3,7 @@ module Vcov
 using Combinatorics: combinations
 using GroupedArrays: GroupedArray
 using LinearAlgebra: cholesky!, Symmetric, Hermitian, svd
-using StatsBase: StatsBase, dof_residual, RegressionModel, CovarianceEstimator
+using StatsBase: StatsBase, dof_residual, RegressionModel, CovarianceEstimator, modelmatrix, crossmodelmatrix, residuals, dof_residual
 using Tables: Tables
 using Base: @propagate_inbounds
 

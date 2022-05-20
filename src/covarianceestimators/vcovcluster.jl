@@ -59,7 +59,7 @@ end
 function materialize(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("materialize requires a table input"))
     ns = names(v)
-    return cluster(ns, map(n -> GroupedArray(Tables.getcolumn(table, n)), ns))
+    return cluster(ns, map(n -> GroupedArray(Tables.getcolumn(table, n), sort = nothing), ns))
 end
 
 """
@@ -83,7 +83,7 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
         if length(c) == 1
             g = v.clusters[c[1]]
         else
-            g = GroupedArray((v.clusters[i] for i in c)...)
+            g = GroupedArray((v.clusters[i] for i in c)..., sort = nothing)
         end
         S += (-1)^(length(c) - 1) * helper_cluster(modelmatrix(x), residuals(x), g)
     end

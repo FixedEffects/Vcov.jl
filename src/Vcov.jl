@@ -4,6 +4,7 @@ using Combinatorics: combinations
 using GroupedArrays: GroupedArray
 using LinearAlgebra: cholesky!, Symmetric, Hermitian, svd, rmul!, eigen, Diagonal
 using StatsAPI: StatsAPI, RegressionModel, CovarianceEstimator, modelmatrix, crossmodelmatrix, residuals, dof_residual
+using StatsBase: CovarianceEstimator
 using Tables: Tables
 using Base: @propagate_inbounds
 

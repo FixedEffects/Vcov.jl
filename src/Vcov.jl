@@ -34,7 +34,7 @@ function completecases(table, ::CovarianceEstimator)
 end
 materialize(table, v::CovarianceEstimator) = v
 S_hat(x::RegressionModel, ::CovarianceEstimator) = error("S_hat not defined for this type")
-df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
+dof_tstat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
 
 
 

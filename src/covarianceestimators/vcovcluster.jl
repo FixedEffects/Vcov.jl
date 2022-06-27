@@ -71,7 +71,7 @@ function nclusters(v::ClusterCovariance)
     NamedTuple{names(v)}(map(x -> x.ngroups, v.clusters))
 end
 
-function df_FStat(x::RegressionModel, v::ClusterCovariance, ::Bool)
+function dof_tstat(x::RegressionModel, v::ClusterCovariance, ::Bool)
     minimum(nclusters(v)) - 1
 end
 

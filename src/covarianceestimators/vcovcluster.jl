@@ -110,7 +110,7 @@ function helper_cluster(X::Matrix, res::Union{Vector, Matrix}, g::GroupedArray)
     return Symmetric(X2' * X2)
 end
 
-function StatsBase.vcov(x::RegressionModel, v::ClusterCovariance)
+function StatsAPI.vcov(x::RegressionModel, v::ClusterCovariance)
     xtx = inv(crossmodelmatrix(x))
     pinvertible(Symmetric(xtx * S_hat(x, v) * xtx))
 end

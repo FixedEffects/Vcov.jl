@@ -36,7 +36,8 @@ end
 materialize(table, v::CovarianceEstimator) = v
 S_hat(x::RegressionModel, ::CovarianceEstimator) = error("S_hat not defined for this type")
 StatsAPI.dof_residual(x::RegressionModel, ::CovarianceEstimator) = dof_residual(x)
-
+#deprecated
+df_tstat(x::RegressionModel, ::CovarianceEstimator, :Bool) = dof_residual(x)
 
 
 include("utils.jl")

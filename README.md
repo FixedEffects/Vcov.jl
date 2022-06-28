@@ -12,8 +12,8 @@ completecases(table, ::CovarianceEstimator) = trues(size(df, 1))
 materialize(table, v::CovarianceEstimator) = v
 # return variance-covariance matrix
 vcov(x::RegressionModel, ::CovarianceEstimator) = error("vcov not defined for this type")
-# returns the degree of freedom for the F-statistic
-df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
+# returns the degree of freedom for the t-statistics and F-statistic
+dof_tstat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
 ```
 
 For now, it includes `Vcov.simple()`, `Vcov.robust()`, and `Vcov.cluster(...)`.

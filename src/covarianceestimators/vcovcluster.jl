@@ -71,7 +71,7 @@ function nclusters(v::ClusterCovariance)
     NamedTuple{names(v)}(map(x -> x.ngroups, v.clusters))
 end
 
-function df_FStat(x::RegressionModel, v::ClusterCovariance, ::Bool)
+function dof_tstat(x::RegressionModel, v::ClusterCovariance, ::Bool)
     minimum(nclusters(v)) - 1
 end
 
@@ -110,7 +110,7 @@ function helper_cluster(X::Matrix, res::Union{Vector, Matrix}, g::GroupedArray)
     return Symmetric(X2' * X2)
 end
 
-function StatsBase.vcov(x::RegressionModel, v::ClusterCovariance)
+function StatsAPI.vcov(x::RegressionModel, v::ClusterCovariance)
     xtx = inv(crossmodelmatrix(x))
     pinvertible(Symmetric(xtx * S_hat(x, v) * xtx))
 end

@@ -13,14 +13,16 @@ using Base: @propagate_inbounds
 ## Mimimum RegressionModel used in Vcov
 ##
 ##############################################################################
-struct VcovData{T, N} <: RegressionModel
+struct VcovData{T, Tu, N} <: RegressionModel
     modelmatrix::Matrix{Float64} # X
-    crossmodelmatrix::T          # X'X in the simplest case. Can be Matrix but preferably Factorization
+    crossmodelmatrix::T          # X'X 
+    invcrossmodelmatrix::Tu      # inv(X'X)
     residuals::Array{Float64, N} # vector or matrix of residuals (matrix in the case of IV, residuals of Xendo on (Z, Xexo))
     dof_residual::Int
 end
 StatsAPI.modelmatrix(x::VcovData) = x.modelmatrix
 StatsAPI.crossmodelmatrix(x::VcovData) = x.crossmodelmatrix
+invcrossmodelmatrix(x::VcovData) = x.invcrossmodelmatrix
 StatsAPI.residuals(x::VcovData) = x.residuals
 StatsAPI.dof_residual(x::VcovData) = x.dof_residual
 

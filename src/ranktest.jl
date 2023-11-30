@@ -55,7 +55,7 @@ function ranktest!(X::Matrix{Float64},
         vlab = cholesky!(Hermitian((kronv * kronv') ./ size(X, 1)), check = false)
     else
         K = kron(Gmatrix, Fmatrix)'
-        vcovmodel = Vcov.VcovData(Z, K, X, size(Z, 1) - dof_small - dof_fes) 
+        vcovmodel = Vcov.VcovData(Z, K, X, nothing, size(Z, 1) - dof_small - dof_fes) 
         matrix_vcov2 = Vcov.S_hat(vcovmodel, vcov_method)
         vhat = K \ (K \ matrix_vcov2)'
         vlab = cholesky!(Hermitian(kronv * vhat * kronv'), check = false)

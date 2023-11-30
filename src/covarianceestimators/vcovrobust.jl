@@ -28,7 +28,7 @@ function S_hat(x::RegressionModel, ::RobustCovariance)
 end
 
 function StatsAPI.vcov(x::RegressionModel, v::RobustCovariance)
-    xtx = inv(crossmodelmatrix(x))
+    xtx = invcrossmodelmatrix(x)
     pinvertible(Symmetric(xtx * S_hat(x, v) * xtx))
 end
 

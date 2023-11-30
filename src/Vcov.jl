@@ -2,11 +2,11 @@ module Vcov
 
 using Combinatorics: combinations
 using GroupedArrays: GroupedArray
-using LinearAlgebra: cholesky!
-using StatsBase: StatsBase
+using LinearAlgebra: cholesky!, Symmetric, Hermitian, svd, rmul!, eigen, Diagonal
+using StatsAPI: StatsAPI, RegressionModel, modelmatrix, crossmodelmatrix, residuals, dof_residual
+using StatsBase: CovarianceEstimator
 using Tables: Tables
-
-import Base: @propagate_inbounds, size, length, getindex, show
+using Base: @propagate_inbounds
 
 ##############################################################################
 ##
@@ -19,10 +19,10 @@ struct VcovData{T, N} <: RegressionModel
     residuals::Array{Float64, N} # vector or matrix of residuals (matrix in the case of IV, residuals of Xendo on (Z, Xexo))
     dof_residual::Int
 end
-StatsBase.modelmatrix(x::VcovData) = x.modelmatrix
-StatsBase.crossmodelmatrix(x::VcovData) = x.crossmodelmatrix
-StatsBase.residuals(x::VcovData) = x.residuals
-StatsBase.dof_residual(x::VcovData) = x.dof_residual
+StatsAPI.modelmatrix(x::VcovData) = x.modelmatrix
+StatsAPI.crossmodelmatrix(x::VcovData) = x.crossmodelmatrix
+StatsAPI.residuals(x::VcovData) = x.residuals
+StatsAPI.dof_residual(x::VcovData) = x.dof_residual
 
 ##############################################################################
 ##
@@ -35,8 +35,7 @@ function completecases(table, ::CovarianceEstimator)
 end
 materialize(table, v::CovarianceEstimator) = v
 S_hat(x::RegressionModel, ::CovarianceEstimator) = error("S_hat not defined for this type")
-df_FStat(x::RegressionModel, ::CovarianceEstimator, hasintercept::Bool) = dof_residual(x) - hasintercept
-
+StatsAPI.dof_residual(x::RegressionModel, ::CovarianceEstimator) = dof_residual(x)
 
 
 include("utils.jl")

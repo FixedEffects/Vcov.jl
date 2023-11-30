@@ -7,7 +7,7 @@ Estimate variance-covariance matrix with a heteroskedasticity-robust estimator.
 """
 robust() = RobustCovariance()
 
-show(io::IO, ::RobustCovariance) =
+Base.show(io::IO, ::RobustCovariance) =
     print(io, "Heteroskedasticity-robust covariance estimator")
 
 function S_hat(x::RegressionModel, ::RobustCovariance)
@@ -27,7 +27,7 @@ function S_hat(x::RegressionModel, ::RobustCovariance)
     Symmetric(rmul!(S2, size(m, 1) / dof_residual(x)))
 end
 
-function StatsBase.vcov(x::RegressionModel, v::RobustCovariance)
+function StatsAPI.vcov(x::RegressionModel, v::RobustCovariance)
     xtx = inv(crossmodelmatrix(x))
     pinvertible(Symmetric(xtx * S_hat(x, v) * xtx))
 end

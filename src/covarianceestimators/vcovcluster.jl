@@ -28,11 +28,11 @@ Return column names of variables used to form clusters for `vce`.
 """
 names(v::ClusterCovariance) = v.clusternames
 
-length(v::ClusterCovariance) = length(names(v))
+Base.length(v::ClusterCovariance) = length(names(v))
 
-show(io::IO, ::ClusterCovariance) = print(io, "Cluster-robust covariance estimator")
+Base.show(io::IO, ::ClusterCovariance) = print(io, "Cluster-robust covariance estimator")
 
-function show(io::IO, ::MIME"text/plain", v::ClusterCovariance)
+function Base.show(io::IO, ::MIME"text/plain", v::ClusterCovariance)
     print(io, length(v), "-way cluster-robust covariance estimator:")
     for n in names(v)
         print(io, "\n  ", n)
@@ -59,7 +59,7 @@ end
 function materialize(table, v::ClusterCovariance)
     Tables.istable(table) || throw(ArgumentError("materialize requires a table input"))
     ns = names(v)
-    return cluster(ns, map(n -> GroupedArray(Tables.getcolumn(table, n)), ns))
+    return cluster(ns, map(n -> GroupedArray(Tables.getcolumn(table, n), sort = nothing), ns))
 end
 
 """
@@ -71,7 +71,7 @@ function nclusters(v::ClusterCovariance)
     NamedTuple{names(v)}(map(x -> x.ngroups, v.clusters))
 end
 
-function df_FStat(x::RegressionModel, v::ClusterCovariance, ::Bool)
+function StatsAPI.dof_residual(x::RegressionModel, v::ClusterCovariance)
     minimum(nclusters(v)) - 1
 end
 
@@ -83,7 +83,7 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
         if length(c) == 1
             g = v.clusters[c[1]]
         else
-            g = GroupedArray((v.clusters[i] for i in c)...)
+            g = GroupedArray((v.clusters[i] for i in c)..., sort = nothing)
         end
         S += (-1)^(length(c) - 1) * helper_cluster(modelmatrix(x), residuals(x), g)
     end
@@ -110,7 +110,7 @@ function helper_cluster(X::Matrix, res::Union{Vector, Matrix}, g::GroupedArray)
     return Symmetric(X2' * X2)
 end
 
-function StatsBase.vcov(x::RegressionModel, v::ClusterCovariance)
+function StatsAPI.vcov(x::RegressionModel, v::ClusterCovariance)
     xtx = inv(crossmodelmatrix(x))
     pinvertible(Symmetric(xtx * S_hat(x, v) * xtx))
 end

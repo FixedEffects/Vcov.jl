@@ -93,6 +93,7 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
     # I choose the first option following reghdfe
     G = minimum(nclusters(v))
     rmul!(S, (size(modelmatrix(x), 1) - 1) / dof_residual(x) * G / (G - 1))
+    return Symmetric(S)
 end
 
 # res is a Vector in OLS, Matrix in IV
@@ -111,7 +112,7 @@ function helper_cluster(X::Matrix, res::Union{Vector, Matrix}, g::GroupedArray)
 end
 
 function StatsAPI.vcov(x::RegressionModel, v::ClusterCovariance)
-    xtx = inv(crossmodelmatrix(x))
+    xtx = invcrossmodelmatrix(x)
     pinvertible(Symmetric(xtx * S_hat(x, v) * xtx))
 end
 

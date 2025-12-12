@@ -80,7 +80,9 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
     dim = size(modelmatrix(x), 2) * size(residuals(x), 2)
     S = zeros(dim, dim)
     for c in combinations(1:length(v))
-        if length(c) == 1
+        if length(c) == 0
+            continue
+        elseif length(c) == 1
             g = v.clusters[c[1]]
         else
             g = GroupedArray((v.clusters[i] for i in c)..., sort = nothing)

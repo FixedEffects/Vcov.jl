@@ -21,7 +21,7 @@ function ranktest!(X::Matrix{Float64},
                     dof_small::Int, 
                     dof_fes::Int)
     
-    if (size(X, 2) == 0) | (size(Z, 2) == 0)
+    if (size(X, 2) == 0) || (size(Z, 2) == 0)
         return NaN
     end
 
@@ -42,8 +42,10 @@ function ranktest!(X::Matrix{Float64},
     vt_sub = vt[k,k]
 
 
-    # see p.102 of KP
-    # the operation u_sup \ sqrt(u_sup * u_sub') may fail. For now, we handle the case k = l but not the more general one
+    # See p.102 of KP.
+    # When u_sub (or vt_sub) is zero (degenerate case, e.g. k == l),
+    # the normalization u_sub \ sqrt(u_sub * u_sub') would fail,
+    # so we skip it and use the unnormalized submatrix directly.
     a_qq = iszero(u_sub) ? u[1:l, k:l] : u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))
     b_qq = iszero(vt_sub) ? vt[1:k, k]' : sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[1:k, k]')
 

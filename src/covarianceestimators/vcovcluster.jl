@@ -98,7 +98,8 @@ function S_hat(x::RegressionModel, v::ClusterCovariance)
     return Symmetric(S)
 end
 
-# res is a Vector in OLS, Matrix in IV
+# Scatter-add X[:,j] .* res[:,k] into group sums, then return the cross-product.
+# res is a Vector in OLS, Matrix in IV.
 function helper_cluster(X::Matrix, res::Union{Vector, Matrix}, g::GroupedArray)
     X2 = zeros(eltype(X), g.ngroups, size(X, 2) * size(res, 2))
     idx = 0

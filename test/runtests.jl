@@ -1,6 +1,10 @@
 using Test
-using Vcov: completecases, materialize, simple, robust, cluster, names, nclusters
+using Vcov
+using Vcov: completecases, materialize, simple, robust, cluster, names, nclusters, invcrossmodelmatrix
 using GroupedArrays
+using LinearAlgebra
+using StatsAPI: vcov
+using Random
 const tests = [
     "estimators"
 ]

@@ -6,7 +6,7 @@ using LinearAlgebra: cholesky!, Symmetric, Hermitian, svd, rmul!, eigen, Diagona
 using StatsAPI: StatsAPI, RegressionModel, modelmatrix, crossmodelmatrix, residuals, dof_residual
 using StatsBase: CovarianceEstimator
 using Tables: Tables
-using Base: @propagate_inbounds
+using PrecompileTools: @compile_workload
 
 ##############################################################################
 ##
@@ -47,6 +47,5 @@ include("covarianceestimators/vcovcluster.jl")
 include("ranktest.jl")
 
 include("precompile.jl")
-_precompile_()
 
 end

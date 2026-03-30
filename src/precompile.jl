@@ -1,5 +1,16 @@
-function _precompile_()
-    Base.precompile(Tuple{typeof(Vcov.ranktest!),Array{Float64,2},Array{Float64,2},Array{Float64,2},Vcov.SimpleCovariance,Int64,Int64})
-    Base.precompile(Tuple{typeof(Vcov.ranktest!),Array{Float64,2},Array{Float64,2},Array{Float64,2},Vcov.RobustCovariance,Int64,Int64})
-    Base.precompile(Tuple{typeof(Vcov.ranktest!),Array{Float64,2},Array{Float64,2},Array{Float64,2},Vcov.ClusterCovariance,Int64,Int64})
+@compile_workload begin
+    N, K = 10, 2
+    X = randn(N, K)
+    Z = randn(N, K)
+    e = randn(N)
+    XtX = Symmetric(X' * X)
+    invXtX = inv(XtX)
+    Pi = Z \ X
+    for v in (SimpleCovariance(), RobustCovariance(:hc1), RobustCovariance(:hc2), RobustCovariance(:hc3))
+        vcovdata = VcovData(X, XtX, invXtX, e, N - K)
+        S_hat(vcovdata, v)
+        StatsAPI.vcov(vcovdata, v)
+    end
+    ranktest!(X, Z, Pi, SimpleCovariance(), K, 0)
+    ranktest!(X, Z, Pi, RobustCovariance(), K, 0)
 end

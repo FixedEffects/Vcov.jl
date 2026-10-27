@@ -46,8 +46,10 @@ function ranktest!(X::Matrix{Float64},
     # When u_sub (or vt_sub) is zero (degenerate case, e.g. k == l),
     # the normalization u_sub \ sqrt(u_sub * u_sub') would fail,
     # so we skip it and use the unnormalized submatrix directly.
+    # b_qq is built from the k-th right singular vector of theta, i.e. the k-th column of V,
+    # which is the k-th row of vt (Stata ranktest: bq = v22h*luqrinv(v22')*(v12 \ v22)').
     a_qq = iszero(u_sub) ? u[1:l, k:l] : u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))
-    b_qq = iszero(vt_sub) ? vt[1:k, k]' : sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[1:k, k]')
+    b_qq = iszero(vt_sub) ? vt[k, 1:k]' : sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[k, 1:k]')
 
     kronv = kron(b_qq, a_qq')
     lambda = kronv * vec(theta)

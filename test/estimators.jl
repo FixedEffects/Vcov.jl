@@ -142,4 +142,25 @@ end
     stat_r = Vcov.ranktest!(Xendo, Z, Pi, robust(), 0, 0)
     @test isfinite(stat_r)
     @test stat_r > 0
+
+    # Several endogenous regressors. With simple covariance the statistic equals n * s_k^2, where
+    # s_k is the smallest singular value of theta (the Cragg-Donald form), and it must not depend
+    # on the order of the endogenous variables
+    rng3 = MersenneTwister(42)
+    n = 500
+    for (k, l) in ((3, 3), (2, 4))
+        Z = randn(rng3, n, l)
+        Xendo = Z * randn(rng3, l, k) .+ randn(rng3, n, k) * randn(rng3, k, k)
+        Pi = Z \ Xendo
+        X = Xendo - Z * Pi    # first-stage residuals, as passed by FixedEffectModels
+        Fm = cholesky(Symmetric(Z' * Z)).U
+        Gm = cholesky(Symmetric(X' * X)).U
+        s_k = minimum(svdvals(Fm * (Gm' \ Pi')'))
+        @test Vcov.ranktest!(copy(X), copy(Z), copy(Pi), simple(), 0, 0) ≈ n * s_k^2
+        perm = [k; 1:(k - 1)]
+        for v in (simple(), robust())
+            @test Vcov.ranktest!(copy(X), copy(Z), copy(Pi), v, 0, 0) ≈
+                  Vcov.ranktest!(X[:, perm], copy(Z), Pi[:, perm], v, 0, 0)
+        end
+    end
 end

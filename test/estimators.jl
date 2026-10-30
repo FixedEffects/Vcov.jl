@@ -157,6 +157,8 @@ end
         Gm = cholesky(Symmetric(X' * X)).U
         s_k = minimum(svdvals(Fm * (Gm' \ Pi')'))
         @test Vcov.ranktest!(copy(X), copy(Z), copy(Pi), simple(), 0, 0) ≈ n * s_k^2
+        # the degrees of freedom enter as in the Cragg-Donald F statistic
+        @test Vcov.ranktest!(copy(X), copy(Z), copy(Pi), simple(), l, 3) ≈ (n - l - 3) * s_k^2
         perm = [k; 1:(k - 1)]
         for v in (simple(), robust())
             @test Vcov.ranktest!(copy(X), copy(Z), copy(Pi), v, 0, 0) ≈

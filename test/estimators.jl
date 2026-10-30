@@ -150,7 +150,7 @@ end
         Xs = X .* [1 1 s]
         XX = Symmetric(Xs' * Xs)
         data = Vcov.VcovData(Xs, XX, Symmetric(inv(XX)), res, n - 3)
-        return [sqrt.(diag(vcov(data, v))) for v in (robust(), materialize((; g), cluster(:g)))]
+        return [sqrt.(diag(vcov(data, v))) for v in (robust(), materialize((g = g,), cluster(:g)))]
     end
     for s in (1e6, 1e9, 1e11)
         for (a, b) in zip(se(1.0), se(s))
@@ -169,7 +169,7 @@ end
         Xs = X .* [1 1 s]
         XX = Symmetric(Xs' * Xs)
         data = Vcov.VcovData(Xs, XX, Symmetric(inv(XX)), res, n - 3)
-        return sqrt.(diag(vcov(data, materialize((; g1, g2), cluster(:g1, :g2)))))
+        return sqrt.(diag(vcov(data, materialize((g1 = g1, g2 = g2), cluster(:g1, :g2)))))
     end
     a = @test_logs (:warn,) se(1.0)
     @test (@test_logs (:warn,) se(1e8)) ≈ a ./ [1, 1, 1e8]
@@ -180,7 +180,7 @@ end
     X = hcat(ones(n), collect(1.0:n))
     XX = Symmetric(X' * X)
     data = Vcov.VcovData(X, XX, Symmetric(inv(XX)), randn(n), n - 2)
-    @test all(isnan, diag(vcov(data, materialize((; g = ones(Int, n)), cluster(:g)))))
+    @test all(isnan, diag(vcov(data, materialize((g = ones(Int, n),), cluster(:g)))))
 end
 
 @testset "ranktest" begin

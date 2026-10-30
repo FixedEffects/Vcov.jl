@@ -123,6 +123,66 @@ end
     @test S_cl ≈ S_rob
 end
 
+@testset "pinvertible" begin
+    # a tiny variance is not a negative eigenvalue
+    A = Symmetric([1e-20 1e-11; 1e-11 1.0])
+    @test Vcov.pinvertible(A) === A
+    # a singular matrix is left alone
+    A = Symmetric([1.0 1.0; 1.0 1.0])
+    @test Vcov.pinvertible(A) === A
+    A = Symmetric([1.0 0.0; 0.0 0.0])
+    @test Vcov.pinvertible(A) === A
+    # negative eigenvalues are set to zero
+    A = Symmetric([1.0 2.0; 2.0 1.0])
+    @test (@test_logs (:warn,) Vcov.pinvertible(A)) ≈ [1.5 1.5; 1.5 1.5]
+    A = Symmetric([1.0 0.0; 0.0 -1e-20])
+    @test (@test_logs (:warn,) Vcov.pinvertible(A)) ≈ [1.0 0.0; 0.0 0.0]
+    # undefined with a single cluster
+    A = Symmetric([NaN Inf; Inf NaN])
+    @test Vcov.pinvertible(A) === A
+    # standard errors are equivariant to the scale of a regressor
+    rng = MersenneTwister(1)
+    n = 1000
+    X = hcat(ones(n), randn(rng, n), randn(rng, n))
+    res = randn(rng, n) .* (1 .+ abs.(X[:, 2]))
+    g = rand(rng, 1:50, n)
+    function se(s)
+        Xs = X .* [1 1 s]
+        XX = Symmetric(Xs' * Xs)
+        data = Vcov.VcovData(Xs, XX, Symmetric(inv(XX)), res, n - 3)
+        return [sqrt.(diag(vcov(data, v))) for v in (robust(), materialize((; g), cluster(:g)))]
+    end
+    for s in (1e6, 1e9, 1e11)
+        for (a, b) in zip(se(1.0), se(s))
+            @test b ≈ a ./ [1, 1, s] rtol = 1e-6
+        end
+    end
+end
+
+@testset "pinvertible with non positive semi-definite multiway clustering" begin
+    rng = MersenneTwister(3)
+    n = 200
+    X = hcat(ones(n), randn(rng, n), randn(rng, n))
+    res = randn(rng, n)
+    g1, g2 = rand(rng, 1:4, n), rand(rng, 1:4, n)
+    function se(s)
+        Xs = X .* [1 1 s]
+        XX = Symmetric(Xs' * Xs)
+        data = Vcov.VcovData(Xs, XX, Symmetric(inv(XX)), res, n - 3)
+        return sqrt.(diag(vcov(data, materialize((; g1, g2), cluster(:g1, :g2)))))
+    end
+    a = @test_logs (:warn,) se(1.0)
+    @test (@test_logs (:warn,) se(1e8)) ≈ a ./ [1, 1, 1e8]
+end
+
+@testset "single cluster" begin
+    n = 20
+    X = hcat(ones(n), collect(1.0:n))
+    XX = Symmetric(X' * X)
+    data = Vcov.VcovData(X, XX, Symmetric(inv(XX)), randn(n), n - 2)
+    @test all(isnan, diag(vcov(data, materialize((; g = ones(Int, n)), cluster(:g)))))
+end
+
 @testset "ranktest" begin
     # Edge case: empty matrices return NaN
     @test isnan(Vcov.ranktest!(zeros(10, 0), zeros(10, 1), zeros(0, 1), simple(), 0, 0))

@@ -70,5 +70,5 @@ end
 
 function StatsAPI.vcov(x::RegressionModel, v::RobustCovariance)
     xtx = invcrossmodelmatrix(x)
-    pinvertible(Symmetric(xtx * S_hat(x, v) * xtx))
+    pinvertible(Symmetric(xtx * S_hat(x, v) * xtx), regressor_scale(x))
 end

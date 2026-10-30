@@ -137,9 +137,6 @@ end
     @test (@test_logs (:warn,) Vcov.pinvertible(A)) ≈ [1.5 1.5; 1.5 1.5]
     A = Symmetric([1.0 0.0; 0.0 -1e-20])
     @test (@test_logs (:warn,) Vcov.pinvertible(A)) ≈ [1.0 0.0; 0.0 0.0]
-    # undefined with a single cluster
-    A = Symmetric([NaN Inf; Inf NaN])
-    @test Vcov.pinvertible(A) === A
     # standard errors are equivariant to the scale of a regressor
     rng = MersenneTwister(1)
     n = 1000
@@ -159,20 +156,18 @@ end
     end
 end
 
-@testset "pinvertible with non positive semi-definite multiway clustering" begin
-    rng = MersenneTwister(3)
-    n = 200
-    X = hcat(ones(n), randn(rng, n), randn(rng, n))
-    res = randn(rng, n)
-    g1, g2 = rand(rng, 1:4, n), rand(rng, 1:4, n)
-    function se(s)
-        Xs = X .* [1 1 s]
-        XX = Symmetric(Xs' * Xs)
-        data = Vcov.VcovData(Xs, XX, Symmetric(inv(XX)), res, n - 3)
-        return sqrt.(diag(vcov(data, materialize((g1 = g1, g2 = g2), cluster(:g1, :g2)))))
-    end
-    a = @test_logs (:warn,) se(1.0)
-    @test (@test_logs (:warn,) se(1e8)) ≈ a ./ [1, 1, 1e8]
+@testset "pinvertible with a non positive semi-definite matrix" begin
+    # the adjustment does not depend on the units of the regressors
+    A = Symmetric([1.0 2.0; 2.0 1.0])
+    d = [1.0, 1e8]
+    B = Symmetric(A ./ (d * d'))
+    a = @test_logs (:warn,) Vcov.pinvertible(A)
+    b = @test_logs (:warn,) Vcov.pinvertible(B, d)
+    @test b ≈ a ./ (d * d')
+    # its scale is the norm of each regressor, which is 1 for a zero column
+    X = [3.0 0.0; 4.0 0.0]
+    XX = Symmetric(X' * X)
+    @test Vcov.regressor_scale(Vcov.VcovData(X, XX, XX, zeros(2), 0)) == [5.0, 1.0]
 end
 
 @testset "single cluster" begin

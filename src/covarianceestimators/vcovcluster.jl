@@ -116,6 +116,8 @@ end
 
 function StatsAPI.vcov(x::RegressionModel, v::ClusterCovariance)
     xtx = invcrossmodelmatrix(x)
+    # undefined with a single cluster, since the correction G / (G - 1) is infinite
+    minimum(nclusters(v)) > 1 || return Symmetric(fill(NaN, size(xtx)))
     pinvertible(Symmetric(xtx * S_hat(x, v) * xtx), regressor_scale(x))
 end
 

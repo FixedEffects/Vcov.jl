@@ -1,9 +1,7 @@
 # The eigenvalues of A are not comparable across coefficients with different units, so test
 # for positive semi-definiteness on the correlation scale. A negative variance has a -1 on the
 # diagonal there, so tol, which only absorbs roundoff, never hides one.
-# A is undefined with a single cluster, in which case its entries are not finite.
 function pinvertible(A::Symmetric, scale = ones(size(A, 1)), tol = sqrt(eps(real(float(one(eltype(A)))))))
-    all(isfinite, A) || return A
     d = sqrt.(abs.(diag(A)))
     d[iszero.(d)] .= 1
     correlation = Symmetric(Diagonal(d) \ Matrix(A) / Diagonal(d))

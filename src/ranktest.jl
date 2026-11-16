@@ -48,7 +48,16 @@ function ranktest!(X::Matrix{Float64},
     # so we skip it and use the unnormalized submatrix directly.
     # b_qq is built from the k-th right singular vector of theta, i.e. the k-th column of V,
     # which is the k-th row of vt (Stata ranktest: bq = v22h*luqrinv(v22')*(v12 \ v22)').
-    a_qq = iszero(u_sub) ? u[1:l, k:l] : u[1:l, k:l]  * (u_sub \ sqrt(u_sub * u_sub'))
+    if iszero(u_sub)
+        a_qq = u[1:l, k:l]
+    else
+        # u_sub * u_sub' is symmetric positive semidefinite: take its square root from
+        # a real eigendecomposition. sqrt(::Matrix) may return a complex matrix, and
+        # packages adding matrix methods (e.g. CSV dependencies) invalidate the code
+        # compiled for that type instability, along with every caller of ranktest!
+        F = eigen(Symmetric(u_sub * u_sub'))
+        a_qq = u[1:l, k:l] * (u_sub \ (F.vectors * Diagonal(sqrt.(max.(F.values, 0.0))) * F.vectors'))
+    end
     b_qq = iszero(vt_sub) ? vt[k, 1:k]' : sqrt(vt_sub * vt_sub') * (vt_sub' \ vt[k, 1:k]')
 
     kronv = kron(b_qq, a_qq')
@@ -60,7 +69,9 @@ function ranktest!(X::Matrix{Float64},
     else
         K = kron(Gmatrix, Fmatrix)'
         vcovmodel = Vcov.VcovData(Z, K, nothing, X, size(Z, 1) - dof_small - dof_fes) 
-        matrix_vcov2 = Vcov.S_hat(vcovmodel, vcov_method)
+        # typed: S_hat on an abstract estimator infers as Any, which makes the solve with
+        # vlab below abstractly typed, and invalidatable
+        matrix_vcov2 = convert(Matrix{Float64}, Vcov.S_hat(vcovmodel, vcov_method))::Matrix{Float64}
         vhat = K \ (K \ matrix_vcov2)'
         vlab = cholesky!(Hermitian(kronv * vhat * kronv'), check = false)
     end
